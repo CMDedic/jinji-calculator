@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hours & Minutes Converter</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #eaf2ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 360px;
+  }
+  h2 {
+    margin-top: 0;
+    text-align: center;
+  }
+  label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+  }
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #2563eb;
+  }
+  .result {
+    margin-top: 20px;
+    padding: 12px;
+    background: #e0ecff;
+    border-radius: 8px;
+  }
+  .highlight {
+    margin-top: 10px;
+    padding: 10px;
+    background: #dbeafe;
+    border: 2px solid #60a5fa;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #1e3a8a;
+    text-align: center;
+  }
+  .rounded-value {
+    display: block;
+    margin-top: 8px;
+    font-size: 36px;
+    font-weight: 800;
+    color: #1d4ed8;
+  }
+  .copy-btn {
+    width: auto;
+    margin-top: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: #1d4ed8;
+  }
+  .copy-status {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Time Converter</h2>
+
+    <label for="hours">Hours</label>
+    <input type="number" id="hours" min="0" placeholder="Enter hours">
+
+    <label for="minutes">Minutes</label>
+    <input type="number" id="minutes" min="0" placeholder="Enter minutes">
+
+    <button onclick="convertTime()">Convert</button>
+
+    <div class="result" id="result" style="display:none;">
+      <p><strong>Total Minutes:</strong> <span id="totalMinutes"></span></p>
+      <div class="highlight">Rounded up to 6th minute (Copy/Paste this number on the Jinji Spreadsheet):
+        <span class="rounded-value" id="roundedMinutes"></span>
+        <button class="copy-btn" type="button" onclick="copyRounded()">Copy Jinji Minutes</button>
+        <div class="copy-status" id="copyStatus" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+function convertTime() {
+  const hours = parseFloat(document.getElementById('hours').value) || 0;
+  const minutes = parseFloat(document.getElementById('minutes').value) || 0;
+
+  const totalMinutes = (hours * 60) + minutes;
+
+  // Round UP to next 6-minute increment
+  const rounded = Math.ceil(totalMinutes / 6) * 6;
+
+  document.getElementById('totalMinutes').textContent = totalMinutes;
+  document.getElementById('roundedMinutes').textContent = rounded;
+  document.getElementById('copyStatus').textContent = '';
+  document.getElementById('result').style.display = 'block';
+}
+
+async function copyRounded() {
+  const value = document.getElementById('roundedMinutes').textContent;
+  const status = document.getElementById('copyStatus');
+
+  if (!value) {
+    status.textContent = 'Convert time first.';
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(value);
+    status.textContent = 'Copied! Paste into Excel.';
+  } catch (err) {
+    // Fallback for older browsers / blocked clipboard permissions
+    const temp = document.createElement('textarea');
+    temp.value = value;
+    temp.setAttribute('readonly', '');
+    temp.style.position = 'absolute';
+    temp.style.left = '-9999px';
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    status.textContent = 'Copied! Paste into Excel.';
+  }
+}
+</script>
+</body>
+</html>
